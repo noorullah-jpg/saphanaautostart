@@ -41,19 +41,19 @@ set -o pipefail
 # CONFIGURATION  (override any value by exporting the same-named env var)
 # ===========================================================================
 # CF API endpoint, org and space that own the HANA instance.
-CF_API="${CF_API:-https://api.cf.eu13.hana.ondemand.com}"
-CF_ORG="${CF_ORG:-XTEL SRL}"
-CF_SPACE="${CF_SPACE:-rex-testbed-provider}"
+CF_API="${CF_API}"
+CF_ORG="${CF_ORG}"
+CF_SPACE="${CF_SPACE}"
 
 # The HANA Cloud service instance to keep running (as shown by `cf services`).
-SERVICE_INSTANCE="${SERVICE_INSTANCE:-rex-testbed-hana}"
+SERVICE_INSTANCE="${SERVICE_INSTANCE}"
 
 # Optional non-interactive login. If BOTH are set the script runs `cf auth`;
 # otherwise it assumes an existing, valid CF session/config (e.g. a service
 # key, `cf login --sso`, or a warm `~/.cf/config.json`).
 #   For automation prefer a technical user or:  CF_USERNAME + CF_PASSWORD
-CF_USERNAME="${CF_USERNAME:-}"
-CF_PASSWORD="${CF_PASSWORD:-}"
+CF_USERNAME="${CF_USERNAME}"
+CF_PASSWORD="${CF_PASSWORD}"
 
 # Polling behaviour after issuing the start command.
 POLL_INTERVAL_SECONDS="${POLL_INTERVAL_SECONDS:-30}"   # wait between status checks
