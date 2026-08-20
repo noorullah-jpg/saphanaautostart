@@ -46,7 +46,7 @@ CF_ORG="${CF_ORG}"
 CF_SPACE="${CF_SPACE}"
 
 # The HANA Cloud service instance to keep running (as shown by `cf services`).
-SERVICE_INSTANCE="${SERVICE_INSTANCE}"
+CF_SERVICE: ${{ secrets.CF_SERVICE }}
 
 # Optional non-interactive login. If BOTH are set the script runs `cf auth`;
 # otherwise it assumes an existing, valid CF session/config (e.g. a service
