@@ -16,9 +16,7 @@ jobs:
         run: |
           curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary&version=v8&source=github" \
             | tar -xz
-
           sudo mv cf8 /usr/local/bin/cf
-
           cf version
 
       - name: Install jq
