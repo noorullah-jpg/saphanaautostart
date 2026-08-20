@@ -41,6 +41,21 @@ jobs:
           [ -n "$CF_SPACE" ] && echo "CF_SPACE: SET" || echo "CF_SPACE: MISSING"
           [ -n "$CF_SERVICE" ] && echo "CF_SERVICE: SET" || echo "CF_SERVICE: MISSING"
 
+      - name: Test Environment Secrets
+        env:
+          CF_USERNAME: ${{ secrets.CF_USERNAME }}
+          CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
+          CF_API: ${{ secrets.CF_API }}
+          CF_ORG: ${{ secrets.CF_ORG }}
+          CF_SPACE: ${{ secrets.CF_SPACE }}
+          CF_SERVICE: ${{ secrets.CF_SERVICE }}
+        run: |
+          echo "USERNAME SET: $([[ -n "$CF_USERNAME" ]] && echo YES || echo NO)"
+          echo "PASSWORD SET: $([[ -n "$CF_PASSWORD" ]] && echo YES || echo NO)"
+          echo "API SET: $([[ -n "$CF_API" ]] && echo YES || echo NO)"
+          echo "ORG SET: $([[ -n "$CF_ORG" ]] && echo YES || echo NO)"
+          echo "SPACE SET: $([[ -n "$CF_SPACE" ]] && echo YES || echo NO)"
+          echo "SERVICE SET: $([[ -n "$CF_SERVICE" ]] && echo YES || echo NO)"
       - name: Run HANA Watchdog
         env:
           CF_USERNAME: ${{ secrets.CF_USERNAME }}
