@@ -35,5 +35,5 @@ jobs:
           CF_SPACE: ${{ vars.CF_SPACE }}
           SERVICE_INSTANCE: ${{ vars.SERVICE_INSTANCE }}
         run: |
-          chmod +x scripts/hana-autostart.sh
+          chmod +x hana-autostart.sh
           ./hana-autostart.sh
