@@ -36,4 +36,4 @@ jobs:
           SERVICE_INSTANCE: ${{ vars.SERVICE_INSTANCE }}
         run: |
           chmod +x scripts/hana-autostart.sh
-          ./scripts/hana-autostart.sh
+          ./hana-autostart.sh
