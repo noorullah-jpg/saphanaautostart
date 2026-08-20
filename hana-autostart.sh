@@ -41,19 +41,19 @@ set -o pipefail
 # CONFIGURATION  (override any value by exporting the same-named env var)
 # ===========================================================================
 # CF API endpoint, org and space that own the HANA instance.
-CF_API="${CF_API}"
-CF_ORG="${CF_ORG}"
-CF_SPACE="${CF_SPACE}"
+CF_API="${CF_API:-}"
+CF_ORG="${CF_ORG:-}"
+CF_SPACE="${CF_SPACE:-}"
 
 # The HANA Cloud service instance to keep running (as shown by `cf services`).
-CF_SERVICE: ${{ secrets.CF_SERVICE }}
+CF_SERVICE="${CF_SERVICE:-}"
 
 # Optional non-interactive login. If BOTH are set the script runs `cf auth`;
 # otherwise it assumes an existing, valid CF session/config (e.g. a service
 # key, `cf login --sso`, or a warm `~/.cf/config.json`).
 #   For automation prefer a technical user or:  CF_USERNAME + CF_PASSWORD
-CF_USERNAME="${CF_USERNAME}"
-CF_PASSWORD="${CF_PASSWORD}"
+CF_USERNAME="${CF_USERNAME:-}"
+CF_PASSWORD="${CF_PASSWORD:-}"
 
 # Polling behaviour after issuing the start command.
 POLL_INTERVAL_SECONDS="${POLL_INTERVAL_SECONDS:-30}"   # wait between status checks
@@ -129,7 +129,7 @@ if [ "$HAVE_JQ" -eq 0 ] && [ "$HAVE_PY" -eq 0 ]; then
 fi
 
 log "Starting HANA auto-start check."
-log "Target: api=$CF_API org='$CF_ORG' space='$CF_SPACE' instance='$SERVICE_INSTANCE'"
+log "Target: api=$CF_API org='$CF_ORG' space='$CF_SPACE' instance='$CF_SERVICE'"
 
 # ===========================================================================
 # 1. Authenticate / target CF (non-interactive)
@@ -161,14 +161,14 @@ SPACE_GUID="$(cf space "$CF_SPACE" --guid 2>/dev/null | tr -d '[:space:]')"
 
 # URL-encode the instance name for the query (spaces -> %20 etc. are rare here,
 # but be safe). Fall back to raw name if we cannot encode.
-ENC_NAME="$SERVICE_INSTANCE"
+ENC_NAME="$CF_SERVICE"
 if [ "$HAVE_PY" -eq 1 ]; then
-    ENC_NAME="$(printf '%s' "$SERVICE_INSTANCE" | python3 -c 'import sys,urllib.parse;print(urllib.parse.quote(sys.stdin.read()))' 2>/dev/null || printf '%s' "$SERVICE_INSTANCE")"
+    ENC_NAME="$(printf '%s' "$CF_SERVICE" | python3 -c 'import sys,urllib.parse;print(urllib.parse.quote(sys.stdin.read()))' 2>/dev/null || printf '%s' "$CF_SERVICE")"
 fi
 
 SI_JSON="$(cf curl "/v3/service_instances?names=${ENC_NAME}&space_guids=${SPACE_GUID}" 2>/dev/null)"
 GUID="$(json_get "$SI_JSON" '.resources[0].guid' '["resources"][0]["guid"]')"
-[ -n "$GUID" ] || die 3 "Service instance '$SERVICE_INSTANCE' not found in space '$CF_SPACE'."
+[ -n "$GUID" ] || die 3 "Service instance '$CF_SERVICE' not found in space '$CF_SPACE'."
 log "Resolved service instance GUID: $GUID"
 
 # ===========================================================================
@@ -228,8 +228,8 @@ esac
 # 4. Issue the start command if needed
 # ===========================================================================
 if [ "$NEEDS_START" -eq 1 ]; then
-    log "Issuing start: cf update-service '$SERVICE_INSTANCE' -c '$START_PAYLOAD'"
-    if ! cf update-service "$SERVICE_INSTANCE" -c "$START_PAYLOAD" >/dev/null 2>&1; then
+    log "Issuing start: cf update-service '$CF_SERVICE' -c '$START_PAYLOAD'"
+    if ! cf update-service "$CF_SERVICE" -c "$START_PAYLOAD" >/dev/null 2>&1; then
         die 5 "cf update-service (start) command was rejected. Check plan/permissions/payload."
     fi
     log "Start command accepted; the broker will process it asynchronously."
@@ -252,7 +252,7 @@ while :; do
             true|True|TRUE|1)
                 log "Operation succeeded but instance still reports stopped; continuing to poll." ;;
             *)
-                log "SUCCESS: instance '$SERVICE_INSTANCE' is running (last_operation: $LAST_OP)."
+                log "SUCCESS: instance '$CF_SERVICE' is running (last_operation: $LAST_OP)."
                 exit 0 ;;
         esac
     fi
@@ -262,7 +262,7 @@ while :; do
     fi
 
     if [ "$now" -ge "$deadline" ]; then
-        die 4 "Timed out after ${POLL_TIMEOUT_SECONDS}s waiting for '$SERVICE_INSTANCE' to reach running state (last_operation: $LAST_OP, serviceStopped: '${STOPPED:-unknown}')."
+        die 4 "Timed out after ${POLL_TIMEOUT_SECONDS}s waiting for '$CF_SERVICE' to reach running state (last_operation: $LAST_OP, serviceStopped: '${STOPPED:-unknown}')."
     fi
 
     log "Still working (last_operation: $LAST_OP). Sleeping ${POLL_INTERVAL_SECONDS}s..."
