@@ -30,10 +30,10 @@ jobs:
         env:
           CF_USERNAME: ${{ secrets.CF_USERNAME }}
           CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
-          CF_API: ${{ vars.CF_API }}
-          CF_ORG: ${{ vars.CF_ORG }}
-          CF_SPACE: ${{ vars.CF_SPACE }}
-          SERVICE_INSTANCE: ${{ vars.SERVICE_INSTANCE }}
+          CF_API: ${{ secrets.CF_API }}
+          CF_ORG: ${{ secrets.CF_ORG }}
+          CF_SPACE: ${{ secrets.CF_SPACE }}
+          CF_SERVICE: ${{ secrets.CF_SERVICE }}
         run: |
           chmod +x hana-autostart.sh
           ./hana-autostart.sh
