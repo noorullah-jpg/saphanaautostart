@@ -1,0 +1,39 @@
+name: HANA Watchdog
+
+on:
+  workflow_dispatch:
+
+jobs:
+  hana-watchdog:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Cloud Foundry CLI
+        run: |
+          curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary&version=v8&source=github" \
+            | tar -xz
+
+          sudo mv cf8 /usr/local/bin/cf
+
+          cf version
+
+      - name: Install jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+          jq --version
+
+      - name: Run HANA Watchdog
+        env:
+          CF_USERNAME: ${{ secrets.CF_USERNAME }}
+          CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
+          CF_API: ${{ vars.CF_API }}
+          CF_ORG: ${{ vars.CF_ORG }}
+          CF_SPACE: ${{ vars.CF_SPACE }}
+          SERVICE_INSTANCE: ${{ vars.SERVICE_INSTANCE }}
+        run: |
+          chmod +x scripts/hana-autostart.sh
+          ./scripts/hana-autostart.sh
