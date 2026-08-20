@@ -6,7 +6,7 @@ on:
 jobs:
   hana-watchdog:
     runs-on: ubuntu-latest
-    environment: hana-secrits
+    environment: "hana secrits"
 
     steps:
       - name: Checkout repository
